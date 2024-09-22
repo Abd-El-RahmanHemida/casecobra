@@ -2,6 +2,12 @@ import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe";
 import { db } from "@/db";
 import Stripe from "stripe";
+import { NextResponse } from "next/server";
+
+import { Resend } from "resend";
+import OrderReceivedEmail from "@/components/email/OrderRecievedEmail";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   try {
@@ -62,6 +68,32 @@ export async function POST(request: Request) {
           },
         },
       });
+      await resend.emails.send({
+        from: "CaseCobra <abd.elrahman.hemida2@gmail.com>",
+        to: [event.data.object.customer_details.email],
+        subject: "Thanks for your order!",
+        react: OrderReceivedEmail({
+          orderId,
+          orderDate: updatedOrder.createdAt.toLocaleDateString(),
+          // @ts-ignore
+          shippingAddress: {
+            name: session.customer_details!.name!,
+            city: shippingAddress!.city!,
+            country: shippingAddress!.country!,
+            postalCode: shippingAddress!.postal_code!,
+            street: shippingAddress!.line1!,
+            state: shippingAddress!.state,
+          },
+        }),
+      });
     }
-  } catch (error) {}
+
+    return NextResponse.json({ result: event, ok: true });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { massage: "something went wrong", ok: false },
+      { status: 500 }
+    );
+  }
 }
