@@ -24,7 +24,9 @@ To get started with this project, run
 
 ```bash
   pnpm run dev
+  #or
   npm run dev
+  #or
   yarn dev
 ```
 
