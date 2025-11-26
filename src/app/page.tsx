@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { ArrowRight, Check, Star } from "lucide-react";
 import Link from "next/link";
 
+
 export default function Home() {
   return (
     <div className="bg-slate-50">
